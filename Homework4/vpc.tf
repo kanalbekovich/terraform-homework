@@ -1,49 +1,50 @@
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  cidr_block           = var.vpc[0].cidr_block
+  enable_dns_support   = var.vpc[0].enable_dns_support
+  enable_dns_hostnames = var.vpc[0].enable_dns_hostnames
+  tags = local.tags
 
 }
 
 resource "aws_subnet" "main1" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-west-2a"
-  map_public_ip_on_launch = true
+  cidr_block              = var.subnets[0].cidr_block
+  availability_zone       = var.subnets[0].azs
+  map_public_ip_on_launch = var.subnets[0].map_public_ip_on_launch
 
   tags = {
-    Name = "public1"
+    Name = var.subnets[0].name
   }
 }
 
 resource "aws_subnet" "main2" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-west-2b"
-  map_public_ip_on_launch = true
+  cidr_block              = var.subnets[1].cidr_block
+  availability_zone       = var.subnets[1].azs
+  map_public_ip_on_launch = var.subnets[1].map_public_ip_on_launch
 
   tags = {
-    Name = "public2"
+    Name = var.subnets[1].name
   }
 }
 
 resource "aws_subnet" "main3" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
-  availability_zone = "us-west-2c"
+  cidr_block        = var.subnets[2].cidr_block
+  availability_zone = var.subnets[2].azs
 
   tags = {
-    Name = "private1"
+    Name = var.subnets[2].name
   }
 }
 
 resource "aws_subnet" "main4" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.4.0/24"
-  availability_zone = "us-west-2d"
+  cidr_block        = var.subnets[3].cidr_block
+  availability_zone = var.subnets[3].azs
 
   tags = {
-    Name = "private2"
+    Name = var.subnets[3].name
   }
 }
 
@@ -51,7 +52,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "homework3_igw"
+    Name = var.igw
   }
 }
 
@@ -64,7 +65,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "public-rt"
+    Name = var.route_tables[0]
   }
 }
 
@@ -72,27 +73,27 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "private-rt"
+    Name = var.route_tables[1]
   }
 }
 
-  resource "aws_route_table_association" "a" {
-    subnet_id      = aws_subnet.main1.id
-    route_table_id = aws_route_table.public.id
-  }
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.main1.id
+  route_table_id = aws_route_table.public.id
+}
 
-  resource "aws_route_table_association" "b" {
-    subnet_id      = aws_subnet.main2.id
-    route_table_id = aws_route_table.public.id
-  }
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.main2.id
+  route_table_id = aws_route_table.public.id
+}
 
-  resource "aws_route_table_association" "c" {
-    subnet_id      = aws_subnet.main3.id
-    route_table_id = aws_route_table.private.id
-  }
+resource "aws_route_table_association" "c" {
+  subnet_id      = aws_subnet.main3.id
+  route_table_id = aws_route_table.private.id
+}
 
-  resource "aws_route_table_association" "d" {
-    subnet_id      = aws_subnet.main4.id
-    route_table_id = aws_route_table.private.id
-  }
+resource "aws_route_table_association" "d" {
+  subnet_id      = aws_subnet.main4.id
+  route_table_id = aws_route_table.private.id
+}
 
